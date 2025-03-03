@@ -1,0 +1,6 @@
+[flake8]
+show-source = True
+count = True
+statistics = True
+max-line-length = 200
+exclude = .github, __pycache__, *.ipynb

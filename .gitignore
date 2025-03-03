@@ -1,0 +1,12 @@
+.env
+testing.ipynb
+quickInfo.txt
+EDI-SSH-keys
+venv
+testing
+test_claims_inbound
+test_claims_outbound
+__pycache__
+schemas/__pycache__
+EC2 env
+Alteris-Backend.ppk
