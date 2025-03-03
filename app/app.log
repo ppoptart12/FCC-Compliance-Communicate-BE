@@ -1612,3 +1612,5 @@ Manufacturer: Sanofi pasteur Lot No.: X00000 Exp. Date: 05/22/2025 VIS Given : 0
 2024-11-19 00:30:52,118 - core.logging_config - INFO - Received params: status=None practitioner=None provider='Care Center' patient_name=None date_from=None date_to=None charge_min=None charge_max=None
 2024-11-19 00:30:54,066 - core.logging_config - INFO - status=None practitioner=None provider=None patient_name=None date_from=None date_to=None charge_min=None charge_max=None
 2024-11-19 00:30:54,067 - core.logging_config - INFO - Received params: status=None practitioner=None provider=None patient_name=None date_from=None date_to=None charge_min=None charge_max=None
+2025-03-03 15:39:17,703 - communicate_backend - INFO - Starting Communicate backend v25.03.01
+2025-03-03 15:39:39,386 - communicate_backend - INFO - Starting Communicate backend v25.03.01

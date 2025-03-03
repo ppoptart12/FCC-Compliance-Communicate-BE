@@ -4,13 +4,13 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.config import get
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.token import TokenPayload
 from app.utils.security import verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/unauth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{get('API_V1_STR')}/unauth/login")
 
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
@@ -38,7 +38,7 @@ def get_current_user(
     )
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token, get("SECRET_KEY"), algorithms=[get("ALGORITHM")]
         )
         token_data = TokenPayload(**payload)
         if token_data.sub is None:

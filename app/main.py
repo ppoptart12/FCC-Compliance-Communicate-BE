@@ -3,8 +3,13 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints.UnAuth import auth
 from app.api.v1.endpoints.Auth import user
+from app.api.v1.endpoints.Auth import compliance_scan
 
-from app.core import config
+# Import configuration
+from app.core.config import get  # Changed from 'import config'
+
+# Import logging configuration
+from app.core.logging_config import logger
 
 from fastapi.openapi.docs import (
     get_redoc_html,
@@ -12,12 +17,19 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 
-origins = config.get("ORIGINS")
+origins = get("ORIGINS")  # Changed from config.get("ORIGINS")
 
-app = FastAPI()
+app = FastAPI(
+    title="FCC Compliance Communicate API",
+    description="API for FCC compliance monitoring and communication",
+    version=get("PROJECT_VERSION", "1.0.0"),  # Changed from config.get("PROJECT_VERSION", "1.0.0")
+)
 
 MODEL_NAME = 'Communicate backend'
 MODEL_VERSION = 'v25.03.01'
+
+# Log application startup
+logger.info(f"Starting {MODEL_NAME} {MODEL_VERSION}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -110,6 +122,7 @@ def root_route_health_head(request: Request):
 
 app.include_router(auth.router, prefix="/api/v1/unauth")
 app.include_router(user.router, prefix="/api/v1/auth")
+app.include_router(compliance_scan.router, prefix="/api/v1/auth")
 
 
 # ___________________________________________ API ROUTES ___________________________________________

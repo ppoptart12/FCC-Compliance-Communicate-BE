@@ -1,1 +1,1 @@
-ÿþ
+# UnAuth endpoints package 
