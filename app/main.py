@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints.UnAuth import auth
+from app.api.v1.endpoints.UnAuth import pdf_compliance_scan
 from app.api.v1.endpoints.Auth import user
 from app.api.v1.endpoints.Auth import compliance_scan
 
@@ -121,8 +122,9 @@ def root_route_health_head(request: Request):
 
 
 app.include_router(auth.router, prefix="/api/v1/unauth")
+app.include_router(pdf_compliance_scan.router, prefix="/api/v1/unauth")
 app.include_router(user.router, prefix="/api/v1/auth")
-app.include_router(compliance_scan.router, prefix="/api/v1/auth")
+app.include_router(compliance_scan.router, prefix="/api/v1/unauth")
 
 
 # ___________________________________________ API ROUTES ___________________________________________
