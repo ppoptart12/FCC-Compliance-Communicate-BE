@@ -61,40 +61,18 @@ class ComplianceScanAgent():
             if isinstance(ai_response, dict):
                 log_info("AI response is a dictionary, converting to structured object")
                 # Create a structured object from the dictionary
-                from app.services.compliance_scan.llm_models.agent_models import compliance_scan, DetailedReport
-                import random
+                from app.services.compliance_scan.llm_models.agent_models import compliance_scan
                 
-                # Create default section scores with appropriate ranges
-                section_scores = {
-                    "Public File Requirements": random.randint(70, 100),
-                    "Technical Compliance": random.randint(80, 100),
-                    "Ownership Disclosure": random.randint(60, 100),
-                    "EAS Compliance": random.randint(75, 100),
-                    "RF Exposure": random.randint(85, 100)
-                }
-                
-                # Extract detailed report data
-                detailed_report_data = ai_response.get("detailed_report", {})
-                if not isinstance(detailed_report_data, dict):
-                    detailed_report_data = {}
-                
-                # Create detailed report object
-                detailed_report = DetailedReport(
-                    compliance_score=detailed_report_data.get("compliance_score", 50),
-                    compliance_status=detailed_report_data.get("compliance_status", "Needs Review"),
-                    summary_of_findings=detailed_report_data.get("summary_of_findings", "Insufficient data for complete assessment."),
-                    section_breakdown=detailed_report_data.get("section_breakdown", "No section breakdown available."),
-                    specific_issues=detailed_report_data.get("specific_issues", "No specific issues identified."),
-                    recommendations=detailed_report_data.get("recommendations", "No recommendations available."),
-                    section_scores=section_scores
-                )
-                
-                # Create structured response
+                # Create structured response directly from the dictionary
                 structured_response = compliance_scan(
-                    compliance_score=ai_response.get("compliance_score", 50),
-                    compliance_status=ai_response.get("compliance_status", "review"),
-                    compliance_message=ai_response.get("compliance_message", "Assessment needs review due to limited document content."),
-                    detailed_report=detailed_report
+                    compliance_score=ai_response["compliance_score"],
+                    compliance_status=ai_response["compliance_status"],
+                    compliance_message=ai_response["compliance_message"],
+                    summary_of_findings=ai_response["summary_of_findings"],
+                    section_breakdown=ai_response["section_breakdown"],
+                    specific_issues=ai_response["specific_issues"],
+                    recommendations=ai_response["recommendations"],
+                    section_scores=ai_response["section_scores"]
                 )
                 ai_response = structured_response
                 
@@ -102,7 +80,7 @@ class ComplianceScanAgent():
         except Exception as e:
             log_error(f"Error processing AI response: {str(e)}")
             # Create a fallback response
-            from app.services.compliance_scan.llm_models.agent_models import compliance_scan, DetailedReport
+            from app.services.compliance_scan.llm_models.agent_models import compliance_scan
             import random
             
             # Create default section scores with appropriate ranges
@@ -114,23 +92,16 @@ class ComplianceScanAgent():
                 "RF Exposure": random.randint(85, 100)
             }
             
-            # Create a default detailed report
-            detailed_report = DetailedReport(
-                compliance_score=50,
-                compliance_status="Needs Review",
-                summary_of_findings="Unable to complete assessment due to processing error.",
-                section_breakdown="No section breakdown available due to processing error.",
-                specific_issues="Assessment could not be completed.",
-                recommendations="Please try again with a more detailed document.",
-                section_scores=section_scores
-            )
-            
             # Create a default structured response
             ai_response = compliance_scan(
                 compliance_score=50,
                 compliance_status="review",
                 compliance_message="Assessment could not be completed due to a processing error.",
-                detailed_report=detailed_report
+                summary_of_findings="Unable to complete assessment due to processing error.",
+                section_breakdown="No section breakdown available due to processing error.",
+                specific_issues="Assessment could not be completed.",
+                recommendations="Please try again with a more detailed document.",
+                section_scores=section_scores
             )
             log_info("Created fallback AI response due to processing error")
         
@@ -167,39 +138,23 @@ class ComplianceScanAgent():
     
     def _format_response(self, ai_response, document_info):
         """Format the AI response to match the expected response format."""
-        # Map compliance status to expected values
-        status_mapping = {
-            "compliant": "compliant",
-            "partial": "issues",
-            "non_compliant": "issues",
-            "needs_review": "review",
-            "review": "review",
-            "issues": "issues"
-        }
-        
         # Normalize the compliance status
-        compliance_status = ai_response.compliance_status.lower()
-        normalized_status = status_mapping.get(compliance_status, "review")
-        log_info(f"Normalized compliance status from '{compliance_status}' to '{normalized_status}'")
-        
-        # Ensure we have the correct section scores with the exact keys needed by the frontend
-        section_scores = self._normalize_section_scores(ai_response.detailed_report.section_scores)
-        log_info(f"Normalized section scores: {section_scores}")
-        
+        normalized_status = ai_response.compliance_status.lower()
+        if normalized_status not in ["compliant", "issues", "review"]:
+            normalized_status = "review"
+
         # Create the detailed report
-        log_info("Creating detailed compliance report")
         detailed_report = DetailedComplianceReport(
             compliance_score=ai_response.compliance_score,
-            compliance_status=ai_response.detailed_report.compliance_status,
-            summary_of_findings=ai_response.detailed_report.summary_of_findings,
-            section_breakdown=ai_response.detailed_report.section_breakdown,
-            specific_issues=ai_response.detailed_report.specific_issues,
-            recommendations=ai_response.detailed_report.recommendations,
-            section_scores=section_scores
+            compliance_status=ai_response.compliance_status,
+            summary_of_findings=ai_response.summary_of_findings,
+            section_breakdown=ai_response.section_breakdown,
+            specific_issues=ai_response.specific_issues,
+            recommendations=ai_response.recommendations,
+            section_scores=ai_response.section_scores
         )
-        
+
         # Create the scanned document
-        log_info("Creating scanned document response")
         scanned_document = ScannedDocument(
             name=document_info["name"],
             size=document_info["size"],
@@ -207,7 +162,7 @@ class ComplianceScanAgent():
             complianceMessage=ai_response.compliance_message,
             detailedReport=detailed_report
         )
-        
+
         # Create the final response
         log_info("Creating final compliance scan response")
         return ComplianceScanResponse(

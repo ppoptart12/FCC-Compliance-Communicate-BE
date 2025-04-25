@@ -25,7 +25,37 @@ class DetailedReport(BaseModel):
 
 class compliance_scan(BaseModel):
     """Model for compliance scan response."""
-    compliance_score: int = Field(..., description="Overall compliance score (0-100)")
-    compliance_status: str = Field(..., description="Overall compliance status ('compliant', 'issues', or 'review')")
-    compliance_message: str = Field(..., description="Human-readable message explaining the compliance status")
-    detailed_report: DetailedReport = Field(..., description="Detailed compliance report")
+    compliance_score: int = Field(
+        ..., 
+        description="Overall compliance score (0-100)"
+    )
+    compliance_status: str = Field(
+        ..., 
+        description="Overall compliance status ('compliant', 'issues', or 'review')"
+    )
+    compliance_message: str = Field(
+        ..., 
+        description="Human-readable message explaining the compliance status"
+    )
+    summary_of_findings: str = Field(
+        ..., 
+        description="Summary of the compliance findings"
+    )
+    section_breakdown: str = Field(
+        ..., 
+        description="Breakdown of compliance by section"
+    )
+    specific_issues: str = Field(
+        ..., 
+        description="List of specific compliance issues found"
+    )
+    recommendations: str = Field(
+        ..., 
+        description="Recommendations to address compliance issues"
+    )
+    section_scores: Dict[str, int] = Field(
+        ..., 
+        description="Scores for each compliance section"
+    )
+
+
